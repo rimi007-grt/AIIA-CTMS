@@ -3,14 +3,7 @@ const router = express.Router();
 const { db, logAudit } = require('../db');
 const { authenticateToken, requireRole, ROLES } = require('../middleware/auth');
 
-// Helper to generate CTRI Number: CTRI/YYYY/MM/NNNNNN
-function generateCtriNumber() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const randomNum = Math.floor(100000 + Math.random() * 900000);
-  return `CTRI/${year}/${month}/${randomNum}`;
-}
+// CTRI Number standard format: CTRI/YYYY/MM/NNNNNN (Official ICMR/CTRI Registry)
 
 // GET all trials with search, filters, sorting & RBAC awareness
 router.get('/', authenticateToken, (req, res) => {
@@ -185,12 +178,24 @@ router.post(
         return res.status(400).json({ error: 'Missing mandatory CTRI trial information.' });
       }
 
-      // Generate CTRI number if user left blank
-      const finalCtri = ctri_number && ctri_number.trim() !== '' ? ctri_number.trim() : generateCtriNumber();
+      // CTRI Validation: Must be entered and verified against official registry format
+      if (!ctri_number || !ctri_number.trim()) {
+        return res.status(400).json({
+          error: 'Official CTRI Number is mandatory. Please enter the registration number assigned by the Clinical Trials Registry - India (e.g. CTRI/2026/01/089412).'
+        });
+      }
+
+      const ctriRegex = /^CTRI\/\d{4}\/\d{2,3}\/\d{6}$/i;
+      const finalCtri = ctri_number.trim().toUpperCase();
+      if (!ctriRegex.test(finalCtri)) {
+        return res.status(400).json({
+          error: 'Invalid CTRI format. Official registration numbers must match format: CTRI/YYYY/MM/NNNNNN (e.g. CTRI/2026/01/089412).'
+        });
+      }
 
       const existing = db.prepare('SELECT id FROM trials WHERE ctri_number = ?').get(finalCtri);
       if (existing) {
-        return res.status(409).json({ error: `Trial with CTRI number ${finalCtri} already exists.` });
+        return res.status(409).json({ error: `Trial with CTRI number ${finalCtri} already exists in registry database.` });
       }
 
       const assignedPiName = pi_name || req.user.full_name;

@@ -99,4 +99,50 @@ export const api = {
   markNotificationRead: (id) => apiRequest(`/notifications/${id}/read`, { method: 'PATCH' }),
   markAllNotificationsRead: () => apiRequest('/notifications/read-all', { method: 'PATCH' }),
   deleteNotification: (id) => apiRequest(`/notifications/${id}`, { method: 'DELETE' }),
+
+  // Alert Rules Engine (Gap 3)
+  getAlertRules: () => apiRequest('/alerts/rules'),
+  createAlertRule: (rule) => apiRequest('/alerts/rules', { method: 'POST', body: JSON.stringify(rule) }),
+  updateAlertRule: (id, rule) => apiRequest(`/alerts/rules/${id}`, { method: 'PUT', body: JSON.stringify(rule) }),
+  deleteAlertRule: (id) => apiRequest(`/alerts/rules/${id}`, { method: 'DELETE' }),
+
+  // Informed Consent & DPDP Act (Gap 15)
+  getConsents: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return apiRequest(`/consent?${q}`);
+  },
+  recordConsent: (consentData) => apiRequest('/consent', { method: 'POST', body: JSON.stringify(consentData) }),
+  withdrawConsent: (id, withdrawalData) => apiRequest(`/consent/${id}/withdraw`, { method: 'POST', body: JSON.stringify(withdrawalData) }),
+  getDpdpBreaches: () => apiRequest('/consent/dpdp/breach-log'),
+
+  // 21 CFR Part 11 Electronic Signature (Gap 16)
+  eSignRecord: (payload) => apiRequest('/audit/e-sign', { method: 'POST', body: JSON.stringify(payload) }),
+  getSignatures: (recordType, recordId) => apiRequest(`/audit/signatures/${recordType}/${recordId}`),
+  getAllSignatures: () => apiRequest('/audit/signatures'),
+
+  // CDISC & FHIR Standards (Gaps 7, 8, 17)
+  getCDISCMapping: () => apiRequest('/export/cdisc/mapping'),
+  getFHIRR4Bundle: () => apiRequest('/export/fhir/r4/bundle'),
+  ingestFHIR: (payload) => apiRequest('/export/fhir/ingest', { method: 'POST', body: JSON.stringify(payload) }),
+  exportSDTM_DM: () => apiRequest('/export/sdtm/dm'),
+  exportSDTM_VS: () => apiRequest('/export/sdtm/vs'),
+  exportSDTM_EX: () => apiRequest('/export/sdtm/ex'),
+  exportDefineXML: () => apiRequest('/export/define-xml'),
+
+  // Medical Dictionaries & Statutory Timelines (Gaps 11, 12, 13)
+  getWhoDrugTerms: () => apiRequest('/safety/whodrug-terms'),
+  searchDictionary: (query, dict = 'all') => apiRequest(`/safety/dictionary-search?query=${encodeURIComponent(query)}&dict=${dict}`),
+  getStatutoryTimelines: () => apiRequest('/safety/statutory-timelines'),
+
+  // ABDM Integration (Gap 9)
+  getABDMStatus: () => apiRequest('/abdm/status'),
+  verifyABHA: (data) => apiRequest('/abdm/verify-abha', { method: 'POST', body: JSON.stringify(data) }),
+  getEDCConnectors: () => apiRequest('/abdm/edc/connectors'),
+
+  // Institutional Leadership & Compliance (Gaps 4, 5, 18)
+  getLeadershipDashboard: () => apiRequest('/dashboard/leadership'),
+  getDashboardHeartbeat: () => apiRequest('/dashboard/heartbeat'),
+  getRBACMatrix: () => apiRequest('/compliance/rbac-matrix'),
+  getCERTInCompliance: () => apiRequest('/compliance/cert-in')
 };
+

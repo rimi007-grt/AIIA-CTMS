@@ -8,8 +8,12 @@ import {
   LogOut,
   ChevronDown,
   Sparkles,
-  Settings
+  Settings,
+  Shield,
+  Layers
 } from 'lucide-react';
+import RBACMatrixModal from '../RBACMatrixModal';
+import StagedRoadmapModal from '../StagedRoadmapModal';
 
 // Role → avatar background color
 const ROLE_AVATAR_COLOR = {
@@ -47,6 +51,8 @@ function getGreeting() {
 export default function Navbar({ onNavigate, currentTab }) {
   const { user, logout, demoLogin, theme, toggleTheme } = useAuth();
   const [showDemoDropdown, setShowDemoDropdown] = useState(false);
+  const [showRbacModal, setShowRbacModal] = useState(false);
+  const [showRoadmapModal, setShowRoadmapModal] = useState(false);
   const [switching, setSwitching] = useState(null); // role string being switched to
   const dropdownRef = useRef(null);
 
@@ -117,6 +123,26 @@ export default function Navbar({ onNavigate, currentTab }) {
 
           {/* ── Right controls ── */}
           <div className="flex items-center gap-1.5 sm:gap-2">
+
+            {/* Staged Roadmap */}
+            <button
+              onClick={() => setShowRoadmapModal(true)}
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/70 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition"
+              title="View 3-Stage Platform Maturity Model"
+            >
+              <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Stages / Roadmap</span>
+            </button>
+
+            {/* RBAC Matrix */}
+            <button
+              onClick={() => setShowRbacModal(true)}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
+              title="View Live RBAC Role-by-Endpoint Matrix"
+            >
+              <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>RBAC Matrix</span>
+            </button>
 
             {/* Demo Persona Switcher */}
             <div className="relative" ref={dropdownRef}>
@@ -227,6 +253,11 @@ export default function Navbar({ onNavigate, currentTab }) {
           </div>
         </div>
       </div>
+
+      {/* Live Modals */}
+      <RBACMatrixModal isOpen={showRbacModal} onClose={() => setShowRbacModal(false)} />
+      <StagedRoadmapModal isOpen={showRoadmapModal} onClose={() => setShowRoadmapModal(false)} />
     </header>
   );
 }
+

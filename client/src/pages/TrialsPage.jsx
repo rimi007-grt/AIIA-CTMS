@@ -406,15 +406,19 @@ export default function TrialsPage({ onSelectTrial }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    CTRI Number (Auto-generated if empty)
+                    Official CTRI Registration Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
+                    required
+                    pattern="^CTRI\/\d{4}\/\d{2,3}\/\d{6}$"
+                    title="Must match official registry format: CTRI/YYYY/MM/NNNNNN (e.g. CTRI/2026/01/089412)"
                     value={formData.ctri_number}
-                    onChange={(e) => setFormData({ ...formData, ctri_number: e.target.value })}
-                    placeholder="e.g. CTRI/2026/09/009841"
+                    onChange={(e) => setFormData({ ...formData, ctri_number: e.target.value.toUpperCase() })}
+                    placeholder="e.g. CTRI/2026/01/089412"
                     className="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                   />
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">Assigned by Clinical Trials Registry - India (ICMR)</span>
                 </div>
 
                 <div>

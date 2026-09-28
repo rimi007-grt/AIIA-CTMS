@@ -15,6 +15,10 @@ const auditRouter = require('./routes/audit');
 const exportRouter = require('./routes/export');
 const usersRouter = require('./routes/users');
 const notificationsRouter = require('./routes/notifications');
+const alertsRouter = require('./routes/alerts');
+const consentRouter = require('./routes/consent');
+const abdmRouter = require('./routes/abdm');
+const complianceRouter = require('./routes/compliance');
 const { setIO, runScheduledChecks, seedDemoNotifications } = require('./notifications');
 
 const app = express();
@@ -93,6 +97,10 @@ app.use('/api/audit', auditRouter);
 app.use('/api/export', exportRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/alerts', alertsRouter);
+app.use('/api/consent', consentRouter);
+app.use('/api/abdm', abdmRouter);
+app.use('/api/compliance', complianceRouter);
 
 // ── Serve Frontend SPA in Production / AWS ────────────────────
 const clientDistPath = path.join(__dirname, '../client/dist');

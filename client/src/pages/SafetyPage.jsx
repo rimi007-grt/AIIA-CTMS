@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import DictionaryLookupModal from '../components/DictionaryLookupModal';
+import ESignatureModal from '../components/ESignatureModal';
 import {
   AlertTriangle,
   Plus,
@@ -15,7 +17,9 @@ import {
   TrendingDown,
   ShieldAlert,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  ShieldCheck,
+  BookOpen
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -45,8 +49,12 @@ export default function SafetyPage() {
   const [seriousnessFilter, setSeriousnessFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // Report Modal
+  // Modals & E-Sign
   const [showModal, setShowModal] = useState(false);
+  const [showDictModal, setShowDictModal] = useState(false);
+  const [eSignRecord, setESignRecord] = useState(null);
+  const [signedRecords, setSignedRecords] = useState({});
+  const [statutoryTimelines, setStatutoryTimelines] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
@@ -69,7 +77,7 @@ export default function SafetyPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [aeRes, kpiRes, meddraRes, trialRes] = await Promise.all([
+      const [aeRes, kpiRes, meddraRes, trialRes, timelineRes] = await Promise.all([
         api.getAdverseEvents({
           search,
           severity: severityFilter,
@@ -78,13 +86,15 @@ export default function SafetyPage() {
         }),
         api.getSafetyKPIs(),
         api.getMeddraTerms(),
-        api.getTrials()
+        api.getTrials(),
+        api.getStatutoryTimelines().catch(() => null)
       ]);
 
       setAdverseEvents(aeRes.adverseEvents || []);
       setSafetyKPIs(kpiRes);
       setMeddraTerms(meddraRes.meddraTerms || []);
       setTrials(trialRes.trials || []);
+      if (timelineRes) setStatutoryTimelines(timelineRes);
 
       if (trialRes.trials?.length > 0 && !formData.trial_id) {
         setFormData(prev => ({ ...prev, trial_id: trialRes.trials[0].id }));
@@ -154,26 +164,64 @@ export default function SafetyPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       
-      {/* Header & Report Button */}
+      {/* Header & Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
             Pharmacovigilance & Safety (AE / SAE) Module
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Adverse Event reporting, MedDRA dictionary classification & expedited regulatory compliance
+            Adverse Event reporting, MedDRA & WHO Drug dictionary classification & expedited regulatory compliance
           </p>
         </div>
 
-        {permissions.canReportAE && (
+        <div className="flex items-center space-x-2">
           <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white text-xs font-semibold shadow-xs transition-all"
+            onClick={() => setShowDictModal(true)}
+            className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Report Adverse Event (AE / SAE)</span>
+            <BookOpen className="w-4 h-4" />
+            <span>MedDRA / WHO Drug Search</span>
           </button>
-        )}
+
+          {permissions.canReportAE && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Report Adverse Event (AE / SAE)</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* NPvCC National Pharmacovigilance Apex Banner */}
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 text-white p-4 rounded-xl border border-emerald-700/50 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-start space-x-3">
+            <div className="p-2.5 bg-emerald-800/60 rounded-xl border border-emerald-600/40 shrink-0">
+              <ShieldAlert className="w-5 h-5 text-emerald-300" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Apex Pharmacovigilance Authority</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Ministry of Ayush</span>
+              </div>
+              <h2 className="text-sm md:text-base font-bold text-white mt-0.5">
+                National Pharmacovigilance Coordination Centre (NPvCC) — AIIA New Delhi
+              </h2>
+              <p className="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
+                Operating apex pharmacovigilance surveillance coordinating <strong>5 Intermediary Centres (IPvCs)</strong> and <strong>38 Peripheral Centres (PPvCs)</strong> across India. Enforcing New Drugs and Clinical Trials Rules (NDCT 2019) Rule 42 expedited 24-hour statutory reporting to DCGI & Ethics Committee.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 flex md:flex-col items-end justify-center text-right">
+            <div className="text-[10px] uppercase font-bold text-emerald-400">Statutory Framework</div>
+            <div className="text-xs font-mono font-semibold text-slate-200">NDCT Rules 2019 (Rule 42)</div>
+            <div className="text-[10px] text-emerald-300/80">21 CFR Part 11 Electronic Signature Compliant</div>
+          </div>
+        </div>
       </div>
 
       {/* Safety Summary KPI Cards */}
@@ -377,6 +425,7 @@ export default function SafetyPage() {
                   <th className="py-3 px-3">Reporting Window & Countdown</th>
                   <th className="py-3 px-3">Causality</th>
                   <th className="py-3 px-3">Outcome</th>
+                  <th className="py-3 px-3">21 CFR 11 Sign-off</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -499,6 +548,35 @@ export default function SafetyPage() {
                           {ae.outcome}
                         </span>
                       </td>
+
+                      {/* 21 CFR Part 11 Electronic Signature */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        {signedRecords[ae.id] ? (
+                          <div className="space-y-0.5">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 flex items-center space-x-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <span>E-Signed (Part 11)</span>
+                            </span>
+                            <div className="text-[9px] text-slate-400 font-mono">
+                              By {signedRecords[ae.id].signer_name}
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setESignRecord({
+                              id: ae.id,
+                              recordType: 'adverse_event',
+                              recordTitle: `AE #${ae.id} - ${ae.patient_id} (${ae.meddra_term})`,
+                              defaultMeaning: 'Causality_Certified'
+                            })}
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300 flex items-center space-x-1 shadow-2xs transition cursor-pointer"
+                          >
+                            <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                            <span>E-Sign Causality</span>
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -593,20 +671,39 @@ export default function SafetyPage() {
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">
-                  MedDRA Coded Classification (Dummy Ayurvedic / Clinical Dictionary)
-                </label>
-                <select
-                  value={formData.meddra_term}
-                  onChange={(e) => handleMeddraSelect(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono text-[11px]"
-                >
-                  {meddraTerms.map(m => (
-                    <option key={m.code} value={m.term}>
-                      [{m.code}] {m.term}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-semibold">
+                    MedDRA / WHO Drug Coded Classification <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowDictModal(true)}
+                    className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center space-x-1 cursor-pointer"
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Browse Dictionary Explorer</span>
+                  </button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={formData.meddra_term}
+                    onChange={(e) => handleMeddraSelect(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono text-[11px]"
+                  >
+                    {meddraTerms.map(m => (
+                      <option key={m.code} value={m.term}>
+                        [{m.code}] {m.term}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowDictModal(true)}
+                    className="px-2.5 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                  >
+                    Lookup
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -709,6 +806,37 @@ export default function SafetyPage() {
           </div>
         </div>
       )}
+
+      {/* Medical Dictionary Lookup Modal (MedDRA v26.1 & WHO Drug B3) */}
+      <DictionaryLookupModal
+        isOpen={showDictModal}
+        onClose={() => setShowDictModal(false)}
+        onSelectTerm={(item) => {
+          setFormData(prev => ({
+            ...prev,
+            meddra_term: item.term,
+            meddra_code: item.code
+          }));
+        }}
+      />
+
+      {/* 21 CFR Part 11 Electronic Signature Modal */}
+      <ESignatureModal
+        isOpen={Boolean(eSignRecord)}
+        onClose={() => setESignRecord(null)}
+        recordType={eSignRecord?.recordType}
+        recordId={eSignRecord?.id}
+        recordTitle={eSignRecord?.recordTitle}
+        defaultMeaning={eSignRecord?.defaultMeaning || 'Causality_Certified'}
+        onSuccess={(res) => {
+          if (eSignRecord?.id) {
+            setSignedRecords(prev => ({
+              ...prev,
+              [eSignRecord.id]: res.signature
+            }));
+          }
+        }}
+      />
 
     </div>
   );

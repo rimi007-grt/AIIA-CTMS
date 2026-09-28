@@ -26,14 +26,30 @@ const MEDDRA_TERMS = [
   { code: '10021428', term: 'Insomnia exacerbation (Anidra)' }
 ];
 
+// WHO Drug Global B3 terms sample library (Ayurvedic classical drugs & concomitant allopathic drugs)
+const WHO_DRUG_TERMS = [
+  { drugCode: 'WHO-AYU-00101', drugName: 'Withania somnifera extract (Ashwagandha Ghana Vati)', category: 'Ayurvedic Botanical / Rasayana', atcClass: 'N06BX - Other psychostimulants and nootropics' },
+  { drugCode: 'WHO-AYU-00102', drugName: 'Tinospora cordifolia (Guduchi Ghana Vati)', category: 'Ayurvedic Botanical / Immunomodulator', atcClass: 'L03AX - Other immunostimulants' },
+  { drugCode: 'WHO-AYU-00103', drugName: 'Curcuma longa rhizome extract (Haridra / Curcumin)', category: 'Ayurvedic Anti-inflammatory', atcClass: 'M01AX - Other anti-inflammatory agents' },
+  { drugCode: 'WHO-AYU-00104', drugName: 'Bacopa monnieri processed in Ghee (Brahmi Ghrita)', category: 'Ayurvedic Medhya Rasayana', atcClass: 'N06DX - Other anti-dementia drugs' },
+  { drugCode: 'WHO-AYU-00105', drugName: 'Commiphora mukul (Shuddha Guggulu)', category: 'Ayurvedic Lekhaniya / Hypolipidemic', atcClass: 'C10AX - Other lipid modifying agents' },
+  { drugCode: 'WHO-AYU-00106', drugName: 'Triphala Churna (Emblica, Terminalia chebula, Terminalia bellirica)', category: 'Ayurvedic Dipana / Anulomana', atcClass: 'A06AB - Contact laxatives' },
+  { drugCode: 'WHO-ALLO-00201', drugName: 'Paracetamol (Acetaminophen 500mg)', category: 'Allopathic Analgesic / Antipyretic', atcClass: 'N02BE01 - Paracetamol' },
+  { drugCode: 'WHO-ALLO-00202', drugName: 'Metformin Hydrochloride 500mg Extended Release', category: 'Allopathic Antidiabetic', atcClass: 'A10BA02 - Metformin' },
+  { drugCode: 'WHO-ALLO-00203', drugName: 'Atorvastatin Calcium 10mg', category: 'Allopathic Lipid Modifying', atcClass: 'C10AA05 - Atorvastatin' },
+  { drugCode: 'WHO-ALLO-00204', drugName: 'Amlodipine Besylate 5mg', category: 'Allopathic Antihypertensive', atcClass: 'C08CA01 - Amlodipine' },
+  { drugCode: 'WHO-ALLO-00205', drugName: 'Aspirin (Acetylsalicylic Acid 75mg)', category: 'Allopathic Antiplatelet', atcClass: 'B01AC06 - Acetylsalicylic acid' }
+];
+
 // Helper to calculate reporting deadline & overdue status
 function computeCompliance(eventDateStr, reportDateStr, seriousness) {
   const eventDate = new Date(eventDateStr);
   const reportDate = new Date(reportDateStr || Date.now());
   const diffHours = (reportDate - eventDate) / (1000 * 60 * 60);
 
-  // Regulatory standards (DCGI / CDSCO / GCP):
-  // SAE: Initial report within 24 hours (1 day), detailed report within 14 days
+  // Regulatory standards (DCGI / CDSCO / GCP & NDCT Rules 2019):
+  // Rule 42(1) SAE: Initial notice within 24 hours
+  // Rule 42(2) SAE: Detailed report within 14 days (336 hours)
   // Non-serious AE: within 7 days (168 hours)
   const maxHours = seriousness === 'SAE' ? 24 : 168;
   const isOverdue = diffHours > maxHours;
@@ -49,10 +65,117 @@ function computeCompliance(eventDateStr, reportDateStr, seriousness) {
   };
 }
 
-// GET list of MedDRA terms
+// GET list of MedDRA terms (Stub with validated coding lookup)
 router.get('/meddra-terms', authenticateToken, (req, res) => {
-  res.json({ meddraTerms: MEDDRA_TERMS });
+  res.json({
+    status: 'AUTHENTICATED_STUB',
+    version: 'MedDRA v26.1 (Ayurvedic Integrative Safety Dictionary)',
+    meddraTerms: MEDDRA_TERMS
+  });
 });
+
+// GET list of WHO Drug terms (Stub with validated coding lookup)
+router.get('/whodrug-terms', authenticateToken, (req, res) => {
+  res.json({
+    status: 'AUTHENTICATED_STUB',
+    version: 'WHO Drug Global B3 Format / National Formulary of India',
+    whoDrugTerms: WHO_DRUG_TERMS
+  });
+});
+
+// GET Unified Dictionary Search (MedDRA & WHO Drug)
+router.get('/dictionary-search', authenticateToken, (req, res) => {
+  const { query = '', dict = 'all' } = req.query;
+  const q = query.toLowerCase();
+
+  let meddraMatches = [];
+  let whoDrugMatches = [];
+
+  if (dict === 'all' || dict === 'meddra') {
+    meddraMatches = MEDDRA_TERMS.filter(t => t.term.toLowerCase().includes(q) || t.code.includes(q));
+  }
+  if (dict === 'all' || dict === 'whodrug') {
+    whoDrugMatches = WHO_DRUG_TERMS.filter(t => t.drugName.toLowerCase().includes(q) || t.drugCode.toLowerCase().includes(q) || t.atcClass.toLowerCase().includes(q));
+  }
+
+  res.json({
+    query,
+    totalMatches: meddraMatches.length + whoDrugMatches.length,
+    meddra: meddraMatches,
+    whoDrug: whoDrugMatches,
+    disclaimer: 'Terminology lookup powered by MedDRA v26.1 and WHO Drug Global B3 dictionary stubs.'
+  });
+});
+
+// GET Statutory Timelines Tracker under NDCT Rules 2019
+router.get('/statutory-timelines', authenticateToken, (req, res) => {
+  try {
+    const activeSAEs = db.prepare(`
+      SELECT ae.*, t.ctri_number, t.public_title
+      FROM adverse_events ae
+      JOIN trials t ON ae.trial_id = t.id
+      WHERE ae.seriousness = 'SAE'
+      ORDER BY ae.event_date DESC
+      LIMIT 10
+    `).all();
+
+    const now = Date.now();
+    const timelines = activeSAEs.map(sae => {
+      const awarenessTime = new Date(sae.event_date).getTime();
+      const deadline24h = awarenessTime + (24 * 60 * 60 * 1000);
+      const deadline14d = awarenessTime + (14 * 24 * 60 * 60 * 1000);
+
+      const msRemaining24h = Math.max(0, deadline24h - now);
+      const hoursRemaining24h = Math.floor(msRemaining24h / (1000 * 60 * 60));
+      const minsRemaining24h = Math.floor((msRemaining24h % (1000 * 60 * 60)) / (1000 * 60));
+
+      const msRemaining14d = Math.max(0, deadline14d - now);
+      const daysRemaining14d = Math.floor(msRemaining14d / (1000 * 60 * 60 * 24));
+
+      return {
+        saeId: sae.id,
+        patientId: sae.patient_id,
+        ctriNumber: sae.ctri_number,
+        term: sae.meddra_term,
+        awarenessTimestamp: sae.event_date,
+        rules: [
+          {
+            statute: 'NDCT Rules 2019, Rule 42(1)',
+            description: 'Expedited Initial SAE Notification to CDSCO Licensing Authority & Ethics Committee',
+            statutoryDeadlineHours: 24,
+            deadlineIso: new Date(deadline24h).toISOString(),
+            isOverdue: now > deadline24h,
+            timeRemainingFormatted: `${hoursRemaining24h}h ${minsRemaining24h}m`,
+            urgency: now > deadline24h ? 'CRITICAL_OVERDUE' : hoursRemaining24h < 6 ? 'URGENT_ACTION' : 'MONITORING'
+          },
+          {
+            statute: 'NDCT Rules 2019, Rule 42(2)',
+            description: 'Detailed Medical Analysis & Causality Assessment Report to CDSCO Expert Committee',
+            statutoryDeadlineDays: 14,
+            deadlineIso: new Date(deadline14d).toISOString(),
+            isOverdue: now > deadline14d,
+            timeRemainingFormatted: `${daysRemaining14d} days remaining`,
+            urgency: now > deadline14d ? 'CRITICAL_OVERDUE' : daysRemaining14d < 3 ? 'WARNING' : 'ON_SCHEDULE'
+          }
+        ]
+      };
+    });
+
+    res.json({
+      statuteFramework: 'New Drugs and Clinical Trials (NDCT) Rules 2019 & Indian GCP Guidelines',
+      npvccRole: 'National Pharmacovigilance Coordination Centre (NPvCC) for AYUSH at AIIA',
+      coordinatingCentres: {
+        npvcc: 'AIIA New Delhi (National Apex Coordination)',
+        ipvcCount: 5,
+        ppvcCount: 38
+      },
+      timelines
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // GET all adverse events with filtering
 router.get('/', authenticateToken, (req, res) => {
