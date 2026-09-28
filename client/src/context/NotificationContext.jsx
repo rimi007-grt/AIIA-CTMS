@@ -31,7 +31,8 @@ export function NotificationProvider({ children }) {
   useEffect(() => {
     if (!user || !token) return;
 
-    const socket = io('http://localhost:5000', {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
+    const socket = io(socketUrl, {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,

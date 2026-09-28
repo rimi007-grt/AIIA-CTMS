@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AIIA Clinical Trials Dashboard - Clinical Trial Management System (CTMS) for All India Institute of Ayurveda (SIH 2026, Problem Statement SIH26046)",
   "scripts": {
+    "start": "node server/index.js",
     "server": "node server/index.js",
     "seed": "node server/seed.js",
     "client": "npm --prefix client run dev",

@@ -94,6 +94,22 @@ app.use('/api/export', exportRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/notifications', notificationsRouter);
 
+// ── Serve Frontend SPA in Production / AWS ────────────────────
+const clientDistPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDistPath));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+    return next();
+  }
+  const indexPath = path.join(clientDistPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(200).send('🌿 AIIA CTMS API Server is running. Client build ready for AWS.');
+    }
+  });
+});
+
 // ── Global Error Handler ──────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err);

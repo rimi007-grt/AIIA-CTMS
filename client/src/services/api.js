@@ -1,6 +1,6 @@
 // Centralized API client for AIIA CTMS
-
-const API_BASE = 'https://aiia-ctms-backend-ysbt.onrender.com/api';
+// In production on AWS/Render or behind reverse proxy, defaults to relative /api
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('aiia_ctms_token');
