@@ -106,8 +106,8 @@ app.use('/api/compliance', complianceRouter);
 const clientDistPath = path.join(__dirname, '../client/dist');
 app.use(express.static(clientDistPath));
 
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
     return next();
   }
   const indexPath = path.join(clientDistPath, 'index.html');

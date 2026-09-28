@@ -14,7 +14,7 @@ function seedDefaultAlertRules() {
         metric_name: 'sae_unreported_hours',
         operator: '>=',
         threshold_value: 18.0,
-        recipient_role: ROLES.PV_OFFICER,
+        recipient_role: ROLES.PV || 'Pharmacovigilance Officer',
         severity: 'red'
       },
       {

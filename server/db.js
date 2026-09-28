@@ -1,12 +1,24 @@
-const Database = require('better-sqlite3');
 const path = require('path');
-
 const dbPath = path.join(__dirname, 'ctms.db');
-const db = new Database(dbPath);
 
-// Enable WAL mode for high concurrency & foreign keys
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+let db;
+try {
+  const Database = require('better-sqlite3');
+  db = new Database(dbPath);
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+} catch (e) {
+  // Seamless fallback to Node.js built-in SQLite (Node 22.5+)
+  const { DatabaseSync } = require('node:sqlite');
+  db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA journal_mode = WAL;');
+  db.exec('PRAGMA foreign_keys = ON;');
+  db.pragma = (sql) => {
+    try {
+      db.exec(`PRAGMA ${sql};`);
+    } catch (_) {}
+  };
+}
 
 function initSchema() {
   db.exec(`
@@ -208,6 +220,8 @@ function initSchema() {
   if (!cols.includes('new_value')) db.exec("ALTER TABLE audit_log ADD COLUMN new_value TEXT");
   if (!cols.includes('reason_for_change')) db.exec("ALTER TABLE audit_log ADD COLUMN reason_for_change TEXT");
   if (!cols.includes('field_name')) db.exec("ALTER TABLE audit_log ADD COLUMN field_name TEXT");
+  if (!cols.includes('prev_hash')) db.exec("ALTER TABLE audit_log ADD COLUMN prev_hash TEXT");
+  if (!cols.includes('curr_hash')) db.exec("ALTER TABLE audit_log ADD COLUMN curr_hash TEXT");
 }
 
 initSchema();
