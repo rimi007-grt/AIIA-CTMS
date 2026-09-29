@@ -50,10 +50,22 @@ export default function ExportPage() {
     loadPreviewRecords();
   }, []);
 
-  // Robust file downloader that does NOT prematurely revoke the blob URL
+  // Robust file downloader that safely wraps data and does NOT prematurely revoke the blob URL
   const downloadFile = (blob, filename) => {
     try {
-      const url = window.URL.createObjectURL(blob);
+      const finalBlob = (blob instanceof Blob)
+        ? blob
+        : new Blob([blob], {
+            type: filename.endsWith('.xml')
+              ? 'application/xml;charset=utf-8'
+              : filename.endsWith('.csv')
+              ? 'text/csv;charset=utf-8'
+              : filename.endsWith('.json')
+              ? 'application/json;charset=utf-8'
+              : 'application/octet-stream'
+          });
+
+      const url = window.URL.createObjectURL(finalBlob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
@@ -73,7 +85,7 @@ export default function ExportPage() {
 
       setStatusMessage({
         type: 'success',
-        text: `Successfully downloaded '${filename}' (${(blob.size / 1024).toFixed(1)} KB)`
+        text: `Successfully downloaded '${filename}' (${(finalBlob.size / 1024).toFixed(1)} KB)`
       });
 
       setTimeout(() => {

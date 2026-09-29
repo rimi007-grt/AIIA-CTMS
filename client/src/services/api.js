@@ -15,20 +15,47 @@ export async function apiRequest(endpoint, options = {}) {
     headers
   });
 
-  const contentType = response.headers.get('content-type');
-  if (contentType && contentType.includes('text/csv')) {
-    if (!response.ok) {
-      throw new Error('Failed to download CSV export');
+  const contentType = response.headers.get('content-type') || '';
+
+  if (!response.ok) {
+    let errorMsg = `Request failed (${response.status})`;
+    try {
+      if (contentType.includes('application/json') || contentType.includes('json')) {
+        const errData = await response.json();
+        errorMsg = errData.error || errData.message || errorMsg;
+      } else {
+        const text = await response.text();
+        if (text && text.length < 300) errorMsg = text;
+      }
+    } catch {
+      // Ignore parse failure on error responses
     }
+    throw new Error(errorMsg);
+  }
+
+  // Handle binary/file downloads (CSV, XML, Blobs)
+  if (
+    options.responseType === 'blob' ||
+    contentType.includes('text/csv') ||
+    contentType.includes('xml') ||
+    contentType.includes('application/octet-stream')
+  ) {
     return response.blob();
   }
 
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || 'Server request failed');
+  if (options.responseType === 'text') {
+    return response.text();
   }
 
-  return data;
+  if (contentType.includes('application/json') || contentType.includes('+json')) {
+    return response.json();
+  }
+
+  try {
+    return await response.json();
+  } catch {
+    return await response.text();
+  }
 }
 
 export const api = {
@@ -87,8 +114,8 @@ export const api = {
   // Export
   exportTrialsJSON: () => apiRequest('/export/trials?format=json'),
   exportSafetyJSON: () => apiRequest('/export/safety?format=json'),
-  exportTrialsCSV: () => apiRequest('/export/trials?format=csv'),
-  exportSafetyCSV: () => apiRequest('/export/safety?format=csv'),
+  exportTrialsCSV: () => apiRequest('/export/trials?format=csv', { responseType: 'blob' }),
+  exportSafetyCSV: () => apiRequest('/export/safety?format=csv', { responseType: 'blob' }),
 
   // Users
   getUsers: () => apiRequest('/users'),
@@ -124,10 +151,10 @@ export const api = {
   getCDISCMapping: () => apiRequest('/export/cdisc/mapping'),
   getFHIRR4Bundle: () => apiRequest('/export/fhir/r4/bundle'),
   ingestFHIR: (payload) => apiRequest('/export/fhir/ingest', { method: 'POST', body: JSON.stringify(payload) }),
-  exportSDTM_DM: () => apiRequest('/export/sdtm/dm'),
-  exportSDTM_VS: () => apiRequest('/export/sdtm/vs'),
-  exportSDTM_EX: () => apiRequest('/export/sdtm/ex'),
-  exportDefineXML: () => apiRequest('/export/define-xml'),
+  exportSDTM_DM: () => apiRequest('/export/sdtm/dm', { responseType: 'blob' }),
+  exportSDTM_VS: () => apiRequest('/export/sdtm/vs', { responseType: 'blob' }),
+  exportSDTM_EX: () => apiRequest('/export/sdtm/ex', { responseType: 'blob' }),
+  exportDefineXML: () => apiRequest('/export/define-xml', { responseType: 'blob' }),
 
   // Medical Dictionaries & Statutory Timelines (Gaps 11, 12, 13)
   getWhoDrugTerms: () => apiRequest('/safety/whodrug-terms'),
