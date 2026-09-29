@@ -10,10 +10,12 @@ import {
   Sparkles,
   Settings,
   Shield,
-  Layers
+  Layers,
+  Cloud
 } from 'lucide-react';
 import RBACMatrixModal from '../RBACMatrixModal';
 import StagedRoadmapModal from '../StagedRoadmapModal';
+import AWSCloudModal from '../AWSCloudModal';
 
 // Role → avatar background color
 const ROLE_AVATAR_COLOR = {
@@ -53,6 +55,7 @@ export default function Navbar({ onNavigate, currentTab }) {
   const [showDemoDropdown, setShowDemoDropdown] = useState(false);
   const [showRbacModal, setShowRbacModal] = useState(false);
   const [showRoadmapModal, setShowRoadmapModal] = useState(false);
+  const [showCloudModal, setShowCloudModal] = useState(false);
   const [switching, setSwitching] = useState(null); // role string being switched to
   const dropdownRef = useRef(null);
 
@@ -142,6 +145,21 @@ export default function Navbar({ onNavigate, currentTab }) {
             >
               <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>RBAC Matrix</span>
+            </button>
+
+            {/* AWS Cloud Live Indicator */}
+            <button
+              onClick={() => setShowCloudModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-emerald-300 dark:border-emerald-700/80 bg-emerald-50/90 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition shadow-sm"
+              title="Inspect AWS Cloud Architecture & Live Telemetry"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <Cloud className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="hidden sm:inline font-bold">AWS Live</span>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal hidden xl:inline">ap-south-1</span>
             </button>
 
             {/* Demo Persona Switcher */}
@@ -257,6 +275,7 @@ export default function Navbar({ onNavigate, currentTab }) {
       {/* Live Modals */}
       <RBACMatrixModal isOpen={showRbacModal} onClose={() => setShowRbacModal(false)} />
       <StagedRoadmapModal isOpen={showRoadmapModal} onClose={() => setShowRoadmapModal(false)} />
+      <AWSCloudModal isOpen={showCloudModal} onClose={() => setShowCloudModal(false)} />
     </header>
   );
 }
