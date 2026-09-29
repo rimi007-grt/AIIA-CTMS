@@ -51,7 +51,7 @@ function MainApp() {
     return (
       <div className="min-h-screen bg-[#F8F9F8] dark:bg-slate-950 flex flex-col items-center justify-center space-y-3">
         <RefreshCw className="w-9 h-9 text-emerald-800 animate-spin" />
-        <p className="text-xs text-slate-500 font-medium">Initializing AIIA CTMS Clinical Portal...</p>
+        <p className="text-xs text-slate-500 font-medium">Initializing Aayu-Setu Clinical Portal...</p>
       </div>
     );
   }

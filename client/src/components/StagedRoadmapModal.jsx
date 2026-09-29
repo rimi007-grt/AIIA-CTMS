@@ -16,7 +16,7 @@ export default function StagedRoadmapModal({ isOpen, onClose }) {
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                AIIA CTMS Platform Architecture & Staged Maturity Model
+                Aayu-Setu Platform Architecture & Staged Maturity Model
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Evaluation Transparency: What is Built, Validated, and Staged on the Roadmap

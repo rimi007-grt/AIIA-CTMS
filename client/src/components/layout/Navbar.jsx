@@ -109,10 +109,10 @@ export default function Navbar({ onNavigate, currentTab }) {
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
-                  AIIA CTMS
+                  Aayu-Setu
                 </span>
                 <span className="hidden md:inline px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 uppercase tracking-wider">
-                  SIH26046
+                  AIIA CTMS
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">

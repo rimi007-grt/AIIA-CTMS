@@ -1,12 +1,12 @@
-# AIIA Clinical Trials Dashboard (CTMS)
-### Enterprise Clinical Trial Management System for All India Institute of Ayurveda
-**Ministry of Ayush, Government of India | Problem Statement: SIH26046**
+# Aayu-Setu (आयु-सेतु)
+### Enterprise Clinical Trial Management System (CTMS) for All India Institute of Ayurveda
+**Ministry of Ayush, Government of India**
 
 ---
 
 ## 🏛️ Executive Summary & Staged Architectural Framework
 
-The **AIIA Clinical Trials Dashboard (CTMS)** is a cloud-hosted, GCP-compliant digital clinical trials platform engineered for the **All India Institute of Ayurveda (AIIA)**. It transitions clinical Ayurvedic research from paper/siloed spreadsheets into a globally harmonized, regulatory-compliant ecosystem aligned with the **New Drugs and Clinical Trials (NDCT) Rules 2019**, **Indian GCP Guidelines**, **CDISC SDTM v3.3**, **HL7 FHIR Release 4 (R4)**, and the **Digital Personal Data Protection (DPDP) Act, 2023**.
+**Aayu-Setu** is a cloud-hosted, GCP-compliant digital clinical trial management platform (CTMS) engineered for the **All India Institute of Ayurveda (AIIA)**. It transitions clinical Ayurvedic research from paper/siloed spreadsheets into a globally harmonized, regulatory-compliant ecosystem aligned with the **New Drugs and Clinical Trials (NDCT) Rules 2019**, **Indian GCP Guidelines**, **CDISC SDTM v3.3**, **HL7 FHIR Release 4 (R4)**, and the **Digital Personal Data Protection (DPDP) Act, 2023**.
 
 ### Platform Maturity & Staged Delivery Model
 To maintain transparent, audit-ready credibility, the platform is structured across three clear phases:
@@ -164,5 +164,5 @@ The repository includes production-ready deployment configurations:
 
 ---
 
-### Developed for SIH 2026 — Problem Statement SIH26046
+### Aayu-Setu: Clinical Trial Management System
 **All India Institute of Ayurveda (AIIA) | Ministry of Ayush, New Delhi**

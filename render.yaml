@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: aiia-ctms
+    name: aayu-setu-ctms
     runtime: node
     plan: free
     buildCommand: npm run build
@@ -11,4 +11,4 @@ services:
       - key: PORT
         value: 10000
       - key: JWT_SECRET
-        value: aiia_ctms_production_secret_key_2026_sih
+        value: aayu_setu_ctms_production_secret_key_prod

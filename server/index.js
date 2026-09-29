@@ -23,7 +23,7 @@ const { setIO, runScheduledChecks, seedDemoNotifications } = require('./notifica
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || 'aiia_ctms_super_secret_jwt_key_sih2026_sih26046';
+const JWT_SECRET = process.env.JWT_SECRET || 'aayu_setu_aiia_ctms_super_secret_jwt_key_prod';
 
 // ── HTTP server + Socket.io ────────────────────────────────────
 const httpServer = http.createServer(app);
@@ -80,7 +80,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    service: 'AIIA Clinical Trials Dashboard CTMS API',
+    service: 'Aayu-Setu: AIIA Clinical Trial Management System API',
     institution: 'All India Institute of Ayurveda',
     socketio: 'enabled',
     timestamp: new Date().toISOString()

@@ -17,4 +17,4 @@ run:
     - name: PORT
       value: 5000
     - name: JWT_SECRET
-      value: aiia_ctms_aws_super_secret_jwt_key_sih2026_sih26046
+      value: aayu_setu_ctms_aws_jwt_secret_key_prod

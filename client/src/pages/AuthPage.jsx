@@ -205,7 +205,7 @@ export default function AuthPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-2xl text-center mb-6">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300 text-xs font-semibold mb-3">
           <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-          <span>Smart India Hackathon 2026 • Problem Statement SIH26046</span>
+          <span>All India Institute of Ayurveda • Ministry of Ayush, Govt. of India</span>
         </div>
 
         <div className="flex items-center justify-center space-x-3">
@@ -214,10 +214,10 @@ export default function AuthPage() {
           </div>
           <div className="text-left">
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
-              AIIA Clinical Trials Dashboard
+              Aayu-Setu
             </h1>
             <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-              Clinical Trial Management System (CTMS) • All India Institute of Ayurveda
+              AIIA Clinical Trial Management System (CTMS) • Ministry of Ayush
             </p>
           </div>
         </div>
@@ -343,7 +343,7 @@ export default function AuthPage() {
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center space-x-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Quick Demo Sign-In (For SIH Evaluators)</span>
+                    <span>Quick Role-Based Sign-In (1-Click Switch)</span>
                   </span>
                   <span className="text-[10px] text-slate-400">1-Click Auth</span>
                 </div>
@@ -506,7 +506,7 @@ export default function AuthPage() {
               {resetStep === 1 ? (
                 <form onSubmit={handleForgotRequest} className="space-y-4">
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Enter the email address registered with your AIIA CTMS account. A 6-digit verification code will be generated for password reset.
+                    Enter the email address registered with your Aayu-Setu account. A 6-digit verification code will be generated for password reset.
                   </p>
 
                   <div>

@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'aiia_ctms_super_secret_jwt_key_sih2026_sih26046';
+const JWT_SECRET = process.env.JWT_SECRET || 'aayu_setu_aiia_ctms_super_secret_jwt_key_prod';
 
 // All valid roles
 const ROLES = {

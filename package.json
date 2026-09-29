@@ -1,7 +1,7 @@
 {
-  "name": "aiia-clinical-trials-dashboard",
+  "name": "aayu-setu-ctms",
   "version": "1.0.0",
-  "description": "AIIA Clinical Trials Dashboard - Clinical Trial Management System (CTMS) for All India Institute of Ayurveda (SIH 2026, Problem Statement SIH26046)",
+  "description": "Aayu-Setu: Enterprise Clinical Trial Management System (CTMS) for All India Institute of Ayurveda, Ministry of Ayush, Government of India",
   "scripts": {
     "start": "node server/index.js",
     "server": "node server/index.js",
@@ -13,15 +13,15 @@
     "test:rbac": "node server/test_rbac_matrix.js"
   },
   "keywords": [
+    "aayu-setu",
     "ctms",
     "clinical-trials",
     "ayurveda",
     "aiia",
     "ctri",
     "cdisc",
-    "fhir",
-    "sih2026"
+    "fhir"
   ],
-  "author": "SIH 2026 Team",
+  "author": "All India Institute of Ayurveda (AIIA)",
   "license": "MIT"
 }
