@@ -15,8 +15,10 @@ import {
   Lock,
   RefreshCw,
   Stethoscope,
-  Briefcase
+  Briefcase,
+  Cloud
 } from 'lucide-react';
+import AWSCloudModal from '../components/AWSCloudModal';
 
 export default function AuthPage() {
   const { login, register, demoLogin } = useAuth();
@@ -25,6 +27,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showCloudModal, setShowCloudModal] = useState(false);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -220,6 +223,24 @@ export default function AuthPage() {
               AIIA Clinical Trial Management System (CTMS) • Ministry of Ayush
             </p>
           </div>
+        </div>
+
+        {/* AWS Cloud Live Telemetry Pill */}
+        <div className="mt-3">
+          <button
+            onClick={() => setShowCloudModal(true)}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80 text-emerald-900 dark:text-emerald-200 text-xs font-semibold hover:bg-emerald-200 dark:hover:bg-emerald-900/90 transition shadow-xs group cursor-pointer"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <Cloud className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+            <span>AWS Cloud Live: ap-south-1 (Mumbai)</span>
+            <span className="text-[11px] text-emerald-700 dark:text-emerald-300 font-normal group-hover:underline">
+              • View Cloud Dossier ➔
+            </span>
+          </button>
         </div>
       </div>
 
@@ -594,6 +615,9 @@ export default function AuthPage() {
       <div className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400">
         All India Institute of Ayurveda • Ministry of Ayush, Government of India
       </div>
+
+      {/* AWS Cloud Infrastructure Modal */}
+      <AWSCloudModal isOpen={showCloudModal} onClose={() => setShowCloudModal(false)} />
 
     </div>
   );
